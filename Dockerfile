@@ -1,5 +1,6 @@
 FROM python:3.11-slim
 WORKDIR /app
+COPY main.py /app/main.py
 COPY envvars.py /app/envvars.py
 COPY google_api_util.py /app/google_api_util.py
 COPY keep_available_slots.py /app/keep_available_slots.py
