@@ -7,7 +7,7 @@ from main import (
     remove_past_keep_events,
 )
 from google_api_util import authenticate_google_api
-from envvars import calendars, keep_event_calendar, from_hour, to_hour, duration_minutes, unit_minutes, min_slots, keep_recent_week_count, keep_over_week_count, keep_title
+from envvars import calendars, keep_event_calendar, from_hour, to_hour, duration_minutes, unit_minutes, min_slots, keep_recent_week_count, keep_over_week_count, keep_title, keep_days
 
 def check_overlapping_events(event: dict, events: list[dict]) -> bool:  
     for e in events:
@@ -25,8 +25,8 @@ if __name__ == "__main__":
     credentials = authenticate_google_api()
     remove_past_keep_events(calendar_id=keep_event_calendar, credentials=credentials, keep_title=keep_title)
 
-    # 14 days
-    for day in range(14):
+    # keep_days days
+    for day in range(keep_days):
         target_date = (datetime.now() + timedelta(days=day + 1)).replace(
             hour=0, minute=0, second=0
         )
