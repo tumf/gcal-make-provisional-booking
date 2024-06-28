@@ -1,5 +1,5 @@
 from datetime import datetime
-from main import delete_event, get_events 
+from main import delete_event, get_events
 from google_api_util import authenticate_google_api
 from envvars import calendars, keep_event_calendar, keep_title
 

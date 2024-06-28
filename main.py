@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, date, timezone
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
+
 def get_events(
     calendar_id: str,
     credentials: Credentials,
@@ -33,6 +34,7 @@ def get_events(
     filtered_events = [event for event in events if "dateTime" in event["start"]]
     return filtered_events
 
+
 def list_available_schedules(
     calendars: list,
     credentials: Credentials,
@@ -45,15 +47,15 @@ def list_available_schedules(
 ) -> list:
 
     available_slots = find_available_slots(
-            from_date,
-            to_date,
-            calendars,
-            credentials,
-            from_hour,
-            to_hour,
-            duration_minutes,
-            unit_minutes,
-        )
+        from_date,
+        to_date,
+        calendars,
+        credentials,
+        from_hour,
+        to_hour,
+        duration_minutes,
+        unit_minutes,
+    )
     return available_slots
 
 
@@ -63,13 +65,18 @@ def get_combined_events(
     combined_events = []
     timeMin = date_from.isoformat() + "Z"
     timeMax = date_to.isoformat() + "Z"
-    
+
     for calendar_id in calendars:
         events = get_events(calendar_id, credentials, timeMin=timeMin, timeMax=timeMax)
         for event in events:
             start = event["start"].get("dateTime", event["start"].get("date"))
             end = event["end"].get("dateTime", event["end"].get("date"))
-            combined_events.append({"start_at": datetime.fromisoformat(start), "end_at": datetime.fromisoformat(end)})
+            combined_events.append(
+                {
+                    "start_at": datetime.fromisoformat(start),
+                    "end_at": datetime.fromisoformat(end),
+                }
+            )
     return combined_events
 
 
@@ -77,12 +84,16 @@ def get_time_slots(
     date_from: date, date_to: date, from_hour: int, to_hour: int, unit_minutes: int
 ) -> list:
     time_slots = []
-    for day in range((date_to - date_from).days+1):
+    for day in range((date_to - date_from).days + 1):
         day_date = date_from + timedelta(days=day)
         if day_date.weekday() in (5, 6):  # 5: Saturday, 6: Sunday
             continue
-        current_time = datetime(day_date.year, day_date.month, day_date.day, from_hour, 0)
-        end_time = datetime(day_date.year, day_date.month, day_date.day, to_hour, 0) - timedelta(minutes=unit_minutes)
+        current_time = datetime(
+            day_date.year, day_date.month, day_date.day, from_hour, 0
+        )
+        end_time = datetime(
+            day_date.year, day_date.month, day_date.day, to_hour, 0
+        ) - timedelta(minutes=unit_minutes)
         while current_time <= end_time:
             time_slots.append(current_time.replace(tzinfo=timezone.utc))
             current_time += timedelta(minutes=unit_minutes)
@@ -110,22 +121,19 @@ def find_available_slots(
     duration_minutes: int,
     unit_minutes: int,
 ) -> list:
-    combined_events = get_combined_events(calendars, 
-                                          credentials, 
-                                          date_from.replace(hour=0, minute=0, second=0), 
-                                          (date_to+timedelta(days=1)).replace(hour=0, minute=0, second=0))
+    combined_events = get_combined_events(
+        calendars,
+        credentials,
+        date_from.replace(hour=0, minute=0, second=0),
+        (date_to + timedelta(days=1)).replace(hour=0, minute=0, second=0),
+    )
     time_slots = get_time_slots(date_from, date_to, from_hour, to_hour, unit_minutes)
     available_slots = []
 
     for start_time in time_slots:
         if check_availability(start_time, combined_events, duration_minutes):
             end_time = start_time + timedelta(minutes=duration_minutes)
-            available_slots.append(
-                {
-                    "start": start_time,
-                    "end": end_time
-                }
-            )
+            available_slots.append({"start": start_time, "end": end_time})
 
     return available_slots
 
@@ -164,10 +172,7 @@ def remove_past_keep_events(
     ]
 
     for keep_event in keep_events:
-        if (
-            "dateTime" not in keep_event["start"]
-            or "dateTime" not in keep_event["end"]
-        ):
+        if "dateTime" not in keep_event["start"] or "dateTime" not in keep_event["end"]:
             continue
         keep_end_time = datetime.fromisoformat(keep_event["end"]["dateTime"])
         if keep_end_time < datetime.now().astimezone():

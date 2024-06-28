@@ -1,6 +1,6 @@
 import os
 
-calendars = os.getenv("CALENDARS").split(',')
+calendars = os.getenv("CALENDARS").split(",")
 keep_event_calendar = os.getenv("KEEP_EVENT_CALENDAR")
 from_hour = int(os.getenv("FROM_HOUR", "1"))
 to_hour = int(os.getenv("TO_HOUR", "11"))
