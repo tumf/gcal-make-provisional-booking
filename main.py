@@ -86,8 +86,8 @@ def get_time_slots(
     time_slots = []
     for day in range((date_to - date_from).days + 1):
         day_date = date_from + timedelta(days=day)
-        if day_date.weekday() in (5, 6):  # 5: Saturday, 6: Sunday
-            continue
+        # if day_date.weekday() in (5, 6):  # 5: Saturday, 6: Sunday
+        #     continue
         current_time = datetime(
             day_date.year, day_date.month, day_date.day, from_hour, 0
         )
